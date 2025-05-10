@@ -1,0 +1,57 @@
+         const steps = [
+    { timestamp: 1, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 12, end_time_of_step: 2, type_of_step: "type_of_step", ontime: true } },
+    { timestamp: 2, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: 15, end_time_of_step: 3, type_of_step: "type_of_step", ontime: false } },
+    { timestamp: 3, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 18, end_time_of_step: 4, type_of_step: "", ontime: true } },
+    { timestamp: 4, data: { beat_type: "", foot: "Right Foot", articulation_angle: 20, end_time_of_step: 5, type_of_step: "type_of_step", ontime: false } },
+    { timestamp: 5, data: { beat_type: "Downbeat", foot: "", articulation_angle: 22, end_time_of_step: 6, type_of_step: "type_of_step", ontime: true } },
+    { timestamp: 6, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 25, end_time_of_step: 7, type_of_step: "type_of_step", ontime: true } },
+    { timestamp: 7, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: "", end_time_of_step: 8, type_of_step: "type_of_step", ontime: false } },
+    { timestamp: 8, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 30, end_time_of_step: 9, type_of_step: "", ontime: true } },
+    { timestamp: 9, data: { beat_type: "Downbeat", foot: "", articulation_angle: 35, end_time_of_step: 10, type_of_step: "type_of_step", ontime: false } },
+    { timestamp: 10, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 40, end_time_of_step: 11, type_of_step: "type_of_step", ontime: true } },
+    { timestamp: 11, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: 42, end_time_of_step: 12, type_of_step: "type_of_step", ontime: true } },
+    { timestamp: 12, data: { beat_type: "", foot: "Left Foot", articulation_angle: 45, end_time_of_step: 13, type_of_step: "type_of_step", ontime: false } },
+    { timestamp: 13, data: { beat_type: "Upbeat", foot: "", articulation_angle: 48, end_time_of_step: 14, type_of_step: "type_of_step", ontime: true } },
+    { timestamp: 14, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: "", end_time_of_step: 15, type_of_step: "type_of_step", ontime: false } },
+    { timestamp: 15, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 52, end_time_of_step: 16, type_of_step: "type_of_step", ontime: true } },
+    { timestamp: 16, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: 55, end_time_of_step: 17, type_of_step: "", ontime: false } },
+    { timestamp: 17, data: { beat_type: "Upbeat", foot: "", articulation_angle: 58, end_time_of_step: 18, type_of_step: "type_of_step", ontime: true } }
+];
+
+         
+            {Object.keys(info).length > 0 && (
+                <div className={`rounded-lg p-4 ${info.ontime ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'} border`}>
+                    <div className="flex items-center gap-2 mb-4">
+                        {info.ontime ? (
+                            <CheckCircle className="h-5 w-5 text-green-600" />
+                        ) : (
+                            <AlertCircle className="h-5 w-5 text-red-600" />
+                        )}
+                        <h3 className="font-semibold text-lg">
+                            {info.ontime ? 'On Time' : 'Off Time'}
+                        </h3>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {Object.entries(info).map(([key, value]) => (
+                            key !== 'ontime' && (
+                                <div key={key} className="bg-white rounded-lg p-3 shadow-sm">
+                                    <div className="text-sm text-gray-600 capitalize">
+                                        {key.split('_').join(' ')}
+                                    </div>
+                                    <div className="font-semibold mt-1">
+                                        {formatValue(value)}
+                                    </div>
+                                </div>
+                            )
+                        ))}
+                    </div>
+                </div>
+            )}
+
+    // Update info based on current time
+    useEffect(() => {
+        const step = steps.find(s => s.timestamp === currentTime);
+        if (step) {
+            setInfo(step.data);
+        }
+    }, [currentTime]);

@@ -1,68 +1,112 @@
 
 import React, { useRef, useEffect, useState } from 'react';
-import { AlertCircle, CheckCircle, Play, Pause } from 'lucide-react';
+import { AlertCircle, Play, Pause } from 'lucide-react';
 
-const steps = [
-    { timestamp: 1, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 12, end_time_of_step: 2, type_of_step: "type_of_step", ontime: true } },
-    { timestamp: 2, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: 15, end_time_of_step: 3, type_of_step: "type_of_step", ontime: false } },
-    { timestamp: 3, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 18, end_time_of_step: 4, type_of_step: "", ontime: true } },
-    { timestamp: 4, data: { beat_type: "", foot: "Right Foot", articulation_angle: 20, end_time_of_step: 5, type_of_step: "type_of_step", ontime: false } },
-    { timestamp: 5, data: { beat_type: "Downbeat", foot: "", articulation_angle: 22, end_time_of_step: 6, type_of_step: "type_of_step", ontime: true } },
-    { timestamp: 6, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 25, end_time_of_step: 7, type_of_step: "type_of_step", ontime: true } },
-    { timestamp: 7, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: "", end_time_of_step: 8, type_of_step: "type_of_step", ontime: false } },
-    { timestamp: 8, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 30, end_time_of_step: 9, type_of_step: "", ontime: true } },
-    { timestamp: 9, data: { beat_type: "Downbeat", foot: "", articulation_angle: 35, end_time_of_step: 10, type_of_step: "type_of_step", ontime: false } },
-    { timestamp: 10, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 40, end_time_of_step: 11, type_of_step: "type_of_step", ontime: true } },
-    { timestamp: 11, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: 42, end_time_of_step: 12, type_of_step: "type_of_step", ontime: true } },
-    { timestamp: 12, data: { beat_type: "", foot: "Left Foot", articulation_angle: 45, end_time_of_step: 13, type_of_step: "type_of_step", ontime: false } },
-    { timestamp: 13, data: { beat_type: "Upbeat", foot: "", articulation_angle: 48, end_time_of_step: 14, type_of_step: "type_of_step", ontime: true } },
-    { timestamp: 14, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: "", end_time_of_step: 15, type_of_step: "type_of_step", ontime: false } },
-    { timestamp: 15, data: { beat_type: "Upbeat", foot: "Left Foot", articulation_angle: 52, end_time_of_step: 16, type_of_step: "type_of_step", ontime: true } },
-    { timestamp: 16, data: { beat_type: "Downbeat", foot: "Right Foot", articulation_angle: 55, end_time_of_step: 17, type_of_step: "", ontime: false } },
-    { timestamp: 17, data: { beat_type: "Upbeat", foot: "", articulation_angle: 58, end_time_of_step: 18, type_of_step: "type_of_step", ontime: true } }
-];
 
 
 const VideoPlayer = () => {
     const videoRef = useRef(null);
-    const [info, setInfo] = useState({});
+    // Removed unused 'info' state
     const [error, setError] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
-
-    // Simulated playback for demo purposes
+    // Play/pause the actual video element
     useEffect(() => {
-        let interval;
+        const video = videoRef.current;
+        if (!video) return;
+
         if (isPlaying) {
-            interval = setInterval(() => {
-                setCurrentTime(time => {
-                    const newTime = time + 1;
-                    if (newTime >= 17) {
-                        setIsPlaying(false);
-                        return 0;
-                    }
-                    return newTime;
-                });
-            }, 1000);
+            video.play();
+        } else {
+            video.pause();
         }
-        return () => clearInterval(interval);
     }, [isPlaying]);
 
-    // Update info based on current time
+    // Sync currentTime state with video element
     useEffect(() => {
-        const step = steps.find(s => s.timestamp === currentTime);
-        if (step) {
-            setInfo(step.data);
+        const video = videoRef.current;
+        if (!video) return;
+
+        const handleTimeUpdate = () => {
+            setCurrentTime(video.currentTime);
+        };
+
+        video.addEventListener('timeupdate', handleTimeUpdate);
+        return () => {
+            video.removeEventListener('timeupdate', handleTimeUpdate);
+        };
+    }, []);
+
+    // Seek video when currentTime changes (from timeline or comment click)
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+        if (Math.abs(video.currentTime - currentTime) > 0.1) {
+            video.currentTime = currentTime;
         }
     }, [currentTime]);
+
+
 
     const handlePlayPause = () => {
         setIsPlaying(!isPlaying);
     };
 
-    const formatValue = (value) => {
-        if (value === "" || value === undefined) return "N/A";
-        return value;
+    const [commentRangeStart, setCommentRangeStart] = useState(null);
+    const [commentRangeEnd, setCommentRangeEnd] = useState(null);
+    const [isSelectingRange, setIsSelectingRange] = useState(false);
+    const [comments, setComments] = useState([]);
+    const [commentText, setCommentText] = useState('');
+    const [videoDuration, setVideoDuration] = useState(0);
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const handleLoadedMetadata = () => {
+            setVideoDuration(video.duration || 0);
+        };
+
+        video.addEventListener('loadedmetadata', handleLoadedMetadata);
+        // If metadata is already loaded (e.g., fast reload), set duration immediately
+        if (video.readyState >= 1 && video.duration) {
+            setVideoDuration(video.duration);
+        }
+        return () => {
+            video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        };
+    }, []);
+
+    const startSelectingRange = () => {
+        setIsSelectingRange(true);
+        setCommentRangeStart(currentTime);
+        setCommentRangeEnd(null);
+    };
+
+    const endSelectingRange = () => {
+        setIsSelectingRange(false);
+        setCommentRangeEnd(currentTime);
+    };
+
+    const addComment = () => {
+        if (commentText.trim() && commentRangeStart !== null && commentRangeEnd !== null) {
+            setComments([
+                ...comments,
+                {
+                    id: Date.now(),
+                    start: commentRangeStart,
+                    end: commentRangeEnd,
+                    text: commentText
+                }
+            ]);
+            setCommentText('');
+            setCommentRangeStart(null);
+            setCommentRangeEnd(null);
+        }
+    };
+
+    const seekTo = (time) => {
+        setCurrentTime(time);
     };
 
     return (
@@ -75,10 +119,13 @@ const VideoPlayer = () => {
             )}
 
             <div className="rounded-lg bg-gray-800 aspect-video relative overflow-hidden">
-                <img 
-                    src="http://localhost:8001/video" 
-                    alt="Video placeholder"
+                <video
+                    ref={videoRef}
                     className="w-full h-full object-cover"
+                    src="http://localhost:8001/video"
+                    onLoadedMetadata={() => {/* No-op: removed setInfo */}}
+                    onError={() => setError('Failed to load video')}
+                    // onTimeUpdate={() => setCurrentTime(videoRef.current.currentTime)}
                 />
                 <div className="absolute bottom-4 left-4 right-4">
                     <div className="bg-gray-900/80 rounded-lg p-4 backdrop-blur-sm">
@@ -93,42 +140,102 @@ const VideoPlayer = () => {
                                 Time: {currentTime}s
                             </div>
                         </div>
-                        <div className="mt-2 w-full bg-gray-700 rounded-full h-1">
+                        <div className="mt-2 w-full bg-gray-700 rounded-full h-1 relative">
                             <div 
                                 className="bg-white h-1 rounded-full transition-all"
-                                style={{ width: `${(currentTime / 17) * 100}%` }}
+                                style={{ width: `${(currentTime / videoDuration) * 100}%` }}
+                            />
+                            
+                            {/* Show selected range if any */}
+                            {commentRangeStart !== null && (
+                                <div 
+                                    className="absolute top-0 h-1 bg-blue-400 rounded-full"
+                                    style={{ 
+                                        left: `${(commentRangeStart / videoDuration) * 100}%`,
+                                        width: `${((commentRangeEnd || currentTime) - commentRangeStart) / videoDuration * 100}%`
+                                    }}
+                                />
+                            )}
+                            
+                            {/* Markers for existing comments */}
+                            {comments.map(comment => (
+                                <div 
+                                    key={comment.id}
+                                    className="absolute top-[-4px] h-3 bg-green-400 opacity-70 rounded-sm"
+                                    style={{ 
+                                        left: `${(comment.start / videoDuration) * 100}%`,
+                                        width: `${(comment.end - comment.start) / videoDuration * 100}%`
+                                    }}
+                                    onClick={() => seekTo(comment.start)}
+                                />
+                            ))}
+                            
+                            {/* Timeline click area */}
+                            <div 
+                                className="absolute top-[-10px] w-full h-6 cursor-pointer"
+                                onClick={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    const pos = (e.clientX - rect.left) / rect.width;
+                                    seekTo(Math.floor(pos * videoDuration));
+                                }}
                             />
                         </div>
                     </div>
                 </div>
             </div>
 
-            {Object.keys(info).length > 0 && (
-                <div className={`rounded-lg p-4 ${info.ontime ? 'bg-green-100 border-green-200' : 'bg-red-100 border-red-200'} border`}>
-                    <div className="flex items-center gap-2 mb-4">
-                        {info.ontime ? (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
-                        ) : (
-                            <AlertCircle className="h-5 w-5 text-red-600" />
-                        )}
-                        <h3 className="font-semibold text-lg">
-                            {info.ontime ? 'On Time' : 'Off Time'}
-                        </h3>
+            {/* Comment controls */}
+            <div className="bg-gray-100 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-4">
+                    <button 
+                        onClick={isSelectingRange ? endSelectingRange : startSelectingRange}
+                        className={`px-3 py-1 rounded ${isSelectingRange ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'}`}
+                    >
+                        {isSelectingRange ? 'End selection' : 'Select time range'}
+                    </button>
+                    
+                    {commentRangeStart !== null && (
+                        <div className="text-sm text-gray-600">
+                            {commentRangeStart}s - {commentRangeEnd || currentTime}s
+                        </div>
+                    )}
+                </div>
+                
+                {commentRangeStart !== null && commentRangeEnd !== null && (
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={commentText}
+                            onChange={(e) => setCommentText(e.target.value)}
+                            placeholder="Add your comment here..."
+                            className="flex-1 px-3 py-2 border rounded"
+                        />
+                        <button 
+                            onClick={addComment}
+                            className="px-4 py-2 bg-green-500 text-white rounded"
+                        >
+                            Add Comment
+                        </button>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {Object.entries(info).map(([key, value]) => (
-                            key !== 'ontime' && (
-                                <div key={key} className="bg-white rounded-lg p-3 shadow-sm">
-                                    <div className="text-sm text-gray-600 capitalize">
-                                        {key.split('_').join(' ')}
-                                    </div>
-                                    <div className="font-semibold mt-1">
-                                        {formatValue(value)}
-                                    </div>
+                )}
+            </div>
+
+            {/* List of comments */}
+            {comments.length > 0 && (
+                <div className="bg-white rounded-lg p-4 border">
+                    <h3 className="font-medium mb-2">Comments</h3>
+                    <ul className="space-y-2">
+                        {comments.map(comment => (
+                            <li key={comment.id} className="border-b pb-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-blue-600 cursor-pointer" onClick={() => seekTo(comment.start)}>
+                                        {comment.start}s - {comment.end}s
+                                    </span>
+                                    <span className="text-sm text-gray-500">{comment.text}</span>
                                 </div>
-                            )
+                            </li>
                         ))}
-                    </div>
+                    </ul>
                 </div>
             )}
         </div>
