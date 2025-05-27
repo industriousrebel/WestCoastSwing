@@ -1,21 +1,28 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import VideoPlayer from './VideoPlayer';
-import VideoCoachingPlatform from './test';
+import VideoCoachingPlatform from './pages/coach/VideoCoachingPlatform';
+import Navbar from './components/header/navbar';
+import Home from './pages/user/Home';
 
+// You'll need to create these components
+const NewCoachList = () => (
+  <div>
+    <Navbar />
+    <div>New Coach List Page</div>
+  </div>
+);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    {/* <App /> */}
-    {/* <VideoPlayer /> */}
-    <VideoCoachingPlatform />
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/newcoachlist" element={<NewCoachList />} />
+        <Route path="/test" element={<VideoCoachingPlatform />} />
+      </Routes>
+    </Router>
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, RotateCcw, Download, Palette, Minus, Plus, Upload, AlertCircle, Edit2, Trash2, MessageSquare } from 'lucide-react';
-
+import Navbar from '../../components/header/navbar';
 const VideoCoachingPlatform = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -298,6 +298,7 @@ const VideoCoachingPlatform = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6 bg-gray-900 min-h-screen">
+    <Navbar/>
       <div className="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
         <div className="p-6">
           <h1 className="text-3xl font-bold text-white mb-6 text-center">

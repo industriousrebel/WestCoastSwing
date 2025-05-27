@@ -1,11 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.security import HTTPBearer
-from sqlalchemy.orm import Session
-from typing import List
 from functools import wraps
-from ..database import get_db
-from .. import models
 
 
 router = APIRouter(tags=["coach"])
