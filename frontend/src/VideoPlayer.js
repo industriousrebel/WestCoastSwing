@@ -109,6 +109,33 @@ const VideoPlayer = () => {
         setCurrentTime(time);
     };
 
+    // State for editing comments
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editingCommentText, setEditingCommentText] = useState('');
+
+    // Start editing a comment
+    const startEditingComment = (comment) => {
+        setEditingCommentId(comment.id);
+        setEditingCommentText(comment.text);
+    };
+
+    // Save edited comment
+    const saveEditedComment = () => {
+        setComments(comments.map(comment =>
+            comment.id === editingCommentId
+                ? { ...comment, text: editingCommentText }
+                : comment
+        ));
+        setEditingCommentId(null);
+        setEditingCommentText('');
+    };
+
+    // Cancel editing
+    const cancelEditingComment = () => {
+        setEditingCommentId(null);
+        setEditingCommentText('');
+    };
+
     return (
         <div className="flex flex-col w-full max-w-4xl mx-auto gap-4 p-4">
             {error && (
@@ -125,7 +152,6 @@ const VideoPlayer = () => {
                     src="http://localhost:8001/video"
                     onLoadedMetadata={() => {/* No-op: removed setInfo */}}
                     onError={() => setError('Failed to load video')}
-                    // onTimeUpdate={() => setCurrentTime(videoRef.current.currentTime)}
                 />
                 <div className="absolute bottom-4 left-4 right-4">
                     <div className="bg-gray-900/80 rounded-lg p-4 backdrop-blur-sm">
@@ -227,11 +253,42 @@ const VideoPlayer = () => {
                     <ul className="space-y-2">
                         {comments.map(comment => (
                             <li key={comment.id} className="border-b pb-2">
-                                <div className="flex justify-between">
+                                <div className="flex justify-between items-center gap-2">
                                     <span className="text-sm text-blue-600 cursor-pointer" onClick={() => seekTo(comment.start)}>
                                         {comment.start}s - {comment.end}s
                                     </span>
-                                    <span className="text-sm text-gray-500">{comment.text}</span>
+                                    {editingCommentId === comment.id ? (
+                                        <div className="flex gap-2 flex-1">
+                                            <input
+                                                type="text"
+                                                value={editingCommentText}
+                                                onChange={e => setEditingCommentText(e.target.value)}
+                                                className="flex-1 px-2 py-1 border rounded"
+                                            />
+                                            <button
+                                                onClick={saveEditedComment}
+                                                className="px-2 py-1 bg-green-500 text-white rounded"
+                                            >
+                                                Save
+                                            </button>
+                                            <button
+                                                onClick={cancelEditingComment}
+                                                className="px-2 py-1 bg-gray-300 rounded"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <span className="text-sm text-gray-500 flex-1">{comment.text}</span>
+                                            <button
+                                                onClick={() => startEditingComment(comment)}
+                                                className="px-2 py-1 text-xs bg-blue-500 text-white rounded"
+                                            >
+                                                Edit
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </li>
                         ))}

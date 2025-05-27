@@ -3,7 +3,7 @@
 # Navigate to the backend directory and run FastAPI
 echo "Starting FastAPI server..."
 cd backend
-poetry run uvicorn main:app --reload &
+poetry run python3 main.py --reload &
 
 # Get the FastAPI process ID to stop it later
 FASTAPI_PID=$!

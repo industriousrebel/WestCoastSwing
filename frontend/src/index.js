@@ -4,12 +4,14 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import VideoPlayer from './VideoPlayer';
+import VideoCoachingPlatform from './test';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
-    <VideoPlayer />
+    {/* <App /> */}
+    {/* <VideoPlayer /> */}
+    <VideoCoachingPlatform />
   </React.StrictMode>
 );
 
