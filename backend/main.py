@@ -1,9 +1,20 @@
 from fastapi import FastAPI, File, UploadFile, APIRouter
 from fastapi.responses import JSONResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from routers import coach, user
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 router = APIRouter()
 @router.get("/")
 async def main_route():     

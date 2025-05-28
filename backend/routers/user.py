@@ -6,7 +6,10 @@ user_id = 1
 
 @router.get("/your_coaches", summary="List all coaches for current user")
 def list_user_coaches():
-    return [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}]
+    return [
+        {"id": 1, "name": "Alice", "reviewed_all": True}, 
+        {"id": 2, "name": "Bob", "reviewed_all": False}
+    ]
 
 @router.get("/coach_reviewed_status", summary="List all coaches for current user")
 def list_coach_videos_reviewed():
