@@ -1,11 +1,18 @@
 from fastapi import FastAPI, File, UploadFile, APIRouter
 from fastapi.responses import JSONResponse, FileResponse
-
+from fastapi import Request
+from utils.auth0 import require_auth
+from fastapi import Depends
 router = APIRouter(prefix="/users", tags=["users"])
 user_id = 1
 
-@router.get("/your_coaches", summary="List all coaches for current user")
-def list_user_coaches():
+@router.get("/your_coaches",  dependencies=[Depends(require_auth)])
+def list_user_coaches(request: Request):
+    auth_header = request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("Bearer "):
+        token = auth_header[7:]  # Remove "Bearer " prefix
+    else:
+        print("No Bearer token found")
     return [
         {"id": 1, "name": "Alice", "reviewed_all": True}, 
         {"id": 2, "name": "Bob", "reviewed_all": False}

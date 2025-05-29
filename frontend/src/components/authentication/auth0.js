@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
 
@@ -22,6 +22,7 @@ const Auth0Wrapper = ({ children }) => {
 
   const domain = process.env.REACT_APP_AUTH0_DOMAIN;
   const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
+  const audience_url = process.env.REACT_APP_AUTH0_DOMAIN + "/api/v2/";
 
   const onRedirectCallback = (appState) => {
     navigate(appState?.returnTo || window.location.pathname);
@@ -31,9 +32,10 @@ const Auth0Wrapper = ({ children }) => {
     <Auth0Provider
       domain={domain}
       clientId={clientId}
-      authorizationParams={{
-        redirect_uri: window.location.origin
-      }}
+authorizationParams={{
+      redirect_uri: window.location.origin,
+      audience: "https://datavoer.us.auth0.com/api/v2/",
+    }}
       onRedirectCallback={onRedirectCallback}
     >
       <RequireAuth>{children}</RequireAuth>

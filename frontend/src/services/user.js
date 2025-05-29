@@ -1,9 +1,14 @@
 const API_BASE_URL =  'http://localhost:8001';
-
+const auth0_token = localStorage.getItem('token');
 // Get all coaches for current user
 export const getUserCoaches = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/your_coaches`);
+        const response = await fetch(`${API_BASE_URL}/users/your_coaches`, {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${auth0_token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch coaches');
         return await response.json();
     } catch (error) {
@@ -15,7 +20,11 @@ export const getUserCoaches = async () => {
 // Get coach review status
 export const getCoachReviewedStatus = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/coach_reviewed_status`);
+        const response = await fetch(`${API_BASE_URL}/users/coach_reviewed_status`, {
+            headers: {
+                'Authorization': `Bearer ${auth0_token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch coach review status');
         return await response.json();
     } catch (error) {
@@ -27,7 +36,11 @@ export const getCoachReviewedStatus = async () => {
 // Get available coaches (not assigned to user)
 export const getAvailableCoaches = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/avalible_coaches`);
+        const response = await fetch(`${API_BASE_URL}/users/avalible_coaches`, {
+            headers: {
+                'Authorization': `Bearer ${auth0_token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch available coaches');
         return await response.json();
     } catch (error) {
@@ -44,6 +57,9 @@ export const uploadVideo = async (coachId, file) => {
         
         const response = await fetch(`${API_BASE_URL}/users/upload?coach_id=${coachId}`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${auth0_token}`
+            },
             body: formData,
         });
         
@@ -58,7 +74,11 @@ export const uploadVideo = async (coachId, file) => {
 // Get videos for a coach
 export const getVideos = async (coachId, userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/videos?coach_id=${coachId}&user_id=${userId}`);
+        const response = await fetch(`${API_BASE_URL}/users/videos?coach_id=${coachId}&user_id=${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${auth0_token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch videos');
         return await response.json();
     } catch (error) {
@@ -69,7 +89,7 @@ export const getVideos = async (coachId, userId) => {
 
 // Get video file URL
 export const getVideoUrl = (videoId, coachId, userId) => {
-    return `${API_BASE_URL}/users/video/${videoId}?coach_id=${coachId}&user_id=${userId}`;
+    return `${API_BASE_URL}/users/video/${videoId}?coach_id=${coachId}&user_id=${userId}&token=${auth0_token}`;
 };
 
 // Delete video
@@ -77,6 +97,9 @@ export const deleteVideo = async (videoId, coachId, userId) => {
     try {
         const response = await fetch(`${API_BASE_URL}/users/video/${videoId}?coach_id=${coachId}&user_id=${userId}`, {
             method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${auth0_token}`
+            }
         });
         
         if (!response.ok) throw new Error('Failed to delete video');
@@ -90,7 +113,11 @@ export const deleteVideo = async (videoId, coachId, userId) => {
 // Get video metadata with comments and annotations
 export const getVideoMetadata = async (videoId, coachId, userId) => {
     try {
-        const response = await fetch(`${API_BASE_URL}/users/video/${videoId}/metadata?coach_id=${coachId}&user_id=${userId}`);
+        const response = await fetch(`${API_BASE_URL}/users/video/${videoId}/metadata?coach_id=${coachId}&user_id=${userId}`, {
+            headers: {
+                'Authorization': `Bearer ${auth0_token}`
+            }
+        });
         if (!response.ok) throw new Error('Failed to fetch video metadata');
         return await response.json();
     } catch (error) {

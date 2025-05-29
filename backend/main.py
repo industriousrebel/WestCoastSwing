@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from routers import coach, user
-
 app = FastAPI()
 
 # Add CORS middleware

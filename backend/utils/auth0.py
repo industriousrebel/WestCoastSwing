@@ -1,17 +1,25 @@
 from fastapi import HTTPException, Depends, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import requests
-import jwt
+import jwt,os
 from jwt.algorithms import RSAAlgorithm
 from functools import wraps
 from typing import Optional, Dict, Any
-from utils.config import Config
-
-
+from pathlib import Path
+from dotenv import load_dotenv
+from auth0.authentication import Users
 security = HTTPBearer()
 
+env_path = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(dotenv_path=env_path)
+
+
+AUTH0_ISSUER_BASE_URL = os.getenv("AUTH0_ISSUER_BASE_URL")
+AUTH0_AUDIENCE = os.getenv("AUTH0_AUDIANCE_URL")
+
 def get_public_key(kid: str) -> Optional[Dict]:
-    url = f"https://{Config.AUTH0_ISSUER_BASE_URL}/.well-known/jwks.json"
+
+    url = f"https://{AUTH0_ISSUER_BASE_URL}/.well-known/jwks.json"
     response = requests.get(url)
     jwks = response.json()
     keys = jwks["keys"]
@@ -29,24 +37,30 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
             return None
         public_key = RSAAlgorithm.from_jwk(key)
         decoded_token = jwt.decode(
-            token, public_key, algorithms=["RS256"]
+            token, public_key, algorithms=["RS256"], audience=f"{AUTH0_AUDIENCE}"
         )
+        print(decoded_token)
         return decoded_token
     except jwt.InvalidTokenError:
         return None
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
+def get_current_user(token: str) -> Optional[Dict[str, Any]]:
+       # Initialize the Users class with your Auth0 domain
+       users = Users(domain=AUTH0_ISSUER_BASE_URL)
+       # Replace with your actual access token
+       access_token = token
+       try:
+           user_info = users.userinfo(access_token)
+           print(user_info, 'here')
+       except Exception as e:
+           print(f"Error fetching user info: {e}")
+    
+
+# Or better yet, create a dependency function that can be used with Depends()
+def require_auth(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
+    """Dependency function that can be used with Depends() to require authentication"""
     token = credentials.credentials
     validated_data = verify_token(token)
     if not validated_data:
         raise HTTPException(status_code=401, detail="Invalid token")
-    return validated_data
-
-# Alternative decorator approach (if you prefer decorators)
-def check_jwt(f):
-    @wraps(f)
-    async def decorated_function(*args, **kwargs):
-        # This would need to be adapted based on your specific FastAPI setup
-        # The Depends approach above is more idiomatic for FastAPI
-        return await f(*args, **kwargs)
-    return decorated_function
+    

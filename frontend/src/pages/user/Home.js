@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getUserCoaches } from '../../services/user';
 import Navbar from '../../components/header/navbar';
-import Auth0Wrapper from '../../components/authentication/auth0';
 
 const Home = () => {
     const [coaches, setCoaches] = useState([]);
@@ -13,7 +12,6 @@ const Home = () => {
         const fetchCoaches = async () => {
             try {
                 const data = await getUserCoaches();
-                console.log('Fetched coaches:', data);
                 setCoaches(data);
             } catch (err) {
                 setError(err.message);

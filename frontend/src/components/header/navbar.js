@@ -1,11 +1,34 @@
-import { use, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import LogoutButton from '../authentication/logout';
 
 const Navbar = () => {
     
-const { user, isAuthenticated, isLoading } = useAuth0();
+const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
+
+useEffect(() => {
+    const setToken = async () => {
+            const domain = "datavoer.us.auth0.com";
+
+        if (isAuthenticated) {
+            try {
+      const token = await getAccessTokenSilently({
+        authorizationParams: {
+          audience: `https://${domain}/api/v2/`,
+          scope: "read:current_user",
+        },
+      });
+            
+                localStorage.setItem('token', token);
+           } catch (error) {
+                console.error('Error getting token:', error);
+            }
+        }
+    };
+    setToken();
+}, [isAuthenticated]);
+
     return (
         <div className="navbar bg-base-100 shadow-lg">
             <div className="navbar-start">
