@@ -45,7 +45,7 @@ useEffect(() => {
                     </li>
                     <li>
                         <Link to="/newcoachlist" className="btn btn-ghost">
-                            Coach List
+                            New Coach List
                         </Link>
                     </li>
                     <li>

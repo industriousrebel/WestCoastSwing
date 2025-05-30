@@ -1,5 +1,21 @@
 const API_BASE_URL =  'http://localhost:8001';
 const auth0_token = localStorage.getItem('token');
+
+export const getUserSignupStatus = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/users/signup_status`, {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${auth0_token}`
+            }
+        });
+        if (!response.ok) throw new Error('Failed to fetch coaches');
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching user coaches:', error);
+        throw error;
+    }
+}
 // Get all coaches for current user
 export const getUserCoaches = async () => {
     try {

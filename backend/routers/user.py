@@ -8,7 +8,7 @@ user_id = 1
 
 @router.get("/signup_status",  dependencies=[Depends(require_auth)])
 def signup_status(request: Request):
-    return  {"id": 1, "signup": False}
+    return  {"id": 1, "signup": True}
 @router.get("/your_coaches",  dependencies=[Depends(require_auth)])
 def list_user_coaches(request: Request):
     auth_header = request.headers.get("Authorization")
