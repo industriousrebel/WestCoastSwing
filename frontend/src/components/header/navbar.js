@@ -61,10 +61,10 @@ useEffect(() => {
                     </li>
                 </ul>
                 {isAuthenticated && user && (
-                    <div className="dropdown dropdown-end">
-                        <div tabIndex={0} role="button" className="btn btn-ghost">
+                    <div className="dropdown dropdown-end dropdown-hover">
+                        <Link to="/profile" tabIndex={0} role="button" className="btn btn-ghost">
                             Welcome, {user.name}
-                        </div>
+                        </Link>
                         <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
                             <li>
                                 <LogoutButton />

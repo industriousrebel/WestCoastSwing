@@ -39,7 +39,6 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
         decoded_token = jwt.decode(
             token, public_key, algorithms=["RS256"], audience=f"{AUTH0_AUDIENCE}"
         )
-        print(decoded_token)
         return decoded_token
     except jwt.InvalidTokenError:
         return None
@@ -48,10 +47,9 @@ def get_current_user(token: str) -> Optional[Dict[str, Any]]:
        # Initialize the Users class with your Auth0 domain
        users = Users(domain=AUTH0_ISSUER_BASE_URL)
        # Replace with your actual access token
-       access_token = token
        try:
-           user_info = users.userinfo(access_token)
-           print(user_info, 'here')
+           user_info = users.userinfo(token)
+           print(user_info)
        except Exception as e:
            print(f"Error fetching user info: {e}")
     
